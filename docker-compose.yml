@@ -1,0 +1,45 @@
+version: '3'
+services:
+      mysql:
+        image: mysql
+        container_name: mysql
+        hostname: mysql
+        ports:
+        - 3306:3306
+        volumes:
+        - /opt/mysql/data:/var/lib/mysql
+        - /opt/mysql/my.cnf:/etc/mysql/my.cnf
+        restart: always
+        privileged: true
+        environment:
+          MYSQL_ROOT_PASSWORD: root
+      redis:
+        image: redis
+        hostname: redis
+        container_name: redis
+        volumes: 
+        - /data/redis/data/:/data/
+        - /data/redis/conf/:/etc/redis/
+        ports:
+        -  6379:6379
+        command: ["redis-server", "/etc/redis/redis.conf"]
+      nacos:
+        image: nacos/nacos-server
+        container_name: nacos
+        depends_on:
+        - mysql
+        ports:
+        - 8848:8848
+        restart: always
+        privileged: true
+        environment: 
+          JVM_XMS: 512m
+          JVM_XMX: 2048m
+          MODE: standalone
+          PREFER_HOST_MODE: hostname
+          SPRING_DATASOURCE_PLATFORM: mysql
+          MYSQL_SERVICE_HOST: mysql
+          MYSQL_SERVICE_PORT: 3306
+          MYSQL_SERVICE_DB_NAME: nacos
+          MYSQL_SERVICE_USER: nacos
+          MYSQL_SERVICE_PASSWORD: nacos
